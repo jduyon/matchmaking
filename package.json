@@ -1,0 +1,14 @@
+{
+  "name": "matchmaking",
+  "version": "1.0.0",
+  "description": "Matchmaking service for Firstblood.io",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jacob Duyon",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "mocha": "^5.0.0"
+  }
+}
