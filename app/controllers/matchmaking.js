@@ -197,8 +197,33 @@ function statusHandler(properties, ds_manager, req, res){
   }
 }
 
+function updateStatusHandler(properties, ds_manager, req, res){
+  // Request to tell server you are ready
+  // Will remove you from matched/searching players
+  // Once this is called, a player can restart matchmaking
+  // What if a user was enqueued but not matched and he runs this?
+  // If a player runs this and hasn't been matched yet
+  // they can re-queue without being removed from queue already.
+  // NO ^ because if they were enqueued or dequeued you w
+  var PROPERTIES = properties;
+  var id = req.body.id;
+  if (ds_manager.pairing_manager.hasBeenDequeued(id)){
+    ds_manager.removeQueuedInfo(id);
+    res.status(200);
+    res.json({response:'You may now restart matchmaking service.'})
+  }
+  else{
+    res.status(404);
+    res.json({response:'You are not matched yet or not queued. \
+      Check your status to make sure you are queued first, and then wait to be matched.'})
+  }
+
+
+}
+
 module.exports.startMatchmakingHandler = startMatchmakingHandler;
 module.exports.statusHandler = statusHandler;
+module.exports.updateStatusHandler = updateStatusHandler;
 
 module.exports.MatchPairingManager = MatchPairingManager;
 module.exports.SearchingClientsManager = SearchingClientsManager;

@@ -3,6 +3,7 @@ var router = require('express').Router();
 var matchmaking = require('./matchmaking');
 var startMatchmakingHandler = matchmaking.startMatchmakingHandler;
 var statusHandler = matchmaking.statusHandler;
+var updateStatusHandler = matchmaking.updateStatusHandler;
 
 function getDataStoreManager(properties){
   var sc_manager = new matchmaking.SearchingClientsManager(properties);
@@ -20,6 +21,8 @@ function routerClosure(properties){
   });
   router.post('/start', function(req, res) {startMatchmakingHandler(properties, ds_manager, req, res)});
   router.post('/status', function(req, res) {statusHandler(properties, ds_manager, req, res)});
+  router.post('/update', function(req, res) {updateStatusHandler(properties, ds_manager, req, res)});
+
   return router
 };
 
