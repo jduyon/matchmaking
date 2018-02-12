@@ -410,7 +410,7 @@ describe('DataStoreManager unit tests', function () {
 
 
 
-
+//TODO: Fix these tests setup properties correctly, implement status/udpate handlers
 describe('Matchmaking API full example', function () {
   before(function () {
     /* Setup fake request and response objects for 2 clients */
@@ -448,8 +448,16 @@ describe('Matchmaking API full example', function () {
 
 });
 
+//TODO: Fix these tests setup properties correctly
 describe('startMatchmakingHandler', function () {;
-  before(function () {
+  var sandbox;
+  beforeEach(function () {
+    sandbox = sinon.sandbox.create();
+    this.properties = new Object();
+    this.properties.BINNED_QUEUES = {'0-750':new queue.Queue()};
+    this.properties.ENQUEUED_PLAYERS = new Set();
+    this.properties.DEQUEUED_PLAYERS = {};
+    this.properties.MMR_LOOKUP = ['0-750'];
     /* Setup fake request and response objects for 2 clients */
     this.request_one = {
       'body':{'id':1,'mmr':750}
@@ -471,12 +479,14 @@ describe('startMatchmakingHandler', function () {;
     this.mock_response_two = sinon.spy(this.response_two,'json');
 
   });
-
+  afterEach(function () {
+    sandbox.restore();
+  });
   it('test that binned queue is not empty after first start MM request', function(done){
     // Each binned queue starts as empty, it should queue the first
     // client that makes a startMatchmakingHandler request..
     mm.startMatchmakingHandler(this.request_one, this.response_one);
-    assert(mm.BINNED_QUEUES['0-750'].head != null);
+    assert(mm.PROPERTIES.BINNED_QUEUES['0-750'].head != null);
     done();
   });
 
@@ -485,7 +495,7 @@ describe('startMatchmakingHandler', function () {;
     // the first request and pair it with the second.
     mm.startMatchmakingHandler(this.request_one, this.response_one);
     mm.startMatchmakingHandler(this.request_two, this.response_two);
-    assert(mm.BINNED_QUEUES['0-750'].head == null);
+    assert(mm.PROPERTIES.BINNED_QUEUES['0-750'].head == null);
     done();
   });
 

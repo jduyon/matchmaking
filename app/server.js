@@ -5,12 +5,12 @@ const config = require('../config');
 const hostname = config.host;
 const port = config.port;
 var url_router = require('./controllers/urls');
-
+var properties = require('./properties');
 
 server = express();
 server.use(bodyParser.json());
-server.get('/', (req, res) => res.send('Hello World!'))
-server.use('/', url_router);
+server.use('/', url_router(properties));
+
 server.use(function (err, req, res, next) {
   // logic
   if (err){
@@ -20,4 +20,4 @@ server.use(function (err, req, res, next) {
 
 module.exports.server  = server;
 
-//server.listen(port, hostname, () => console.log('Example app'));
+server.listen(port, hostname, () => console.log('Example app'));

@@ -1,14 +1,4 @@
 const util = require('util') // remove this
-var queue = require('../structs/queue');
-var BINNED_QUEUES = queue.binRanges();
-var ENQUEUED_PLAYERS = new Set(); 
-var DEQUEUED_PLAYERS = {}
-var MMR_LOOKUP = queue.genKeyLookup();
-var PROPERTIES = new Object();
-PROPERTIES.MMR_LOOKUP = MMR_LOOKUP;
-PROPERTIES.BINNED_QUEUES = BINNED_QUEUES;
-PROPERTIES.ENQUEUED_PLAYERS = ENQUEUED_PLAYERS;
-PROPERTIES.DEQUEUED_PLAYERS = DEQUEUED_PLAYERS;
 
 class SearchingClientsManager{
   constructor(properties){
@@ -125,7 +115,8 @@ class DataStoreManager{
   }
 }
 
-function startMatchmakingHandler(req, res){
+
+function startMatchmakingHandler(properties, req, res){
   /*
      Check to see if there is already a match available for you. Otherwise
      add you to the queue.
@@ -142,6 +133,7 @@ function startMatchmakingHandler(req, res){
      If no to all of these ^ then I'll enqueue you.
 
   */
+  var PROPERTIES = properties;
   var mmr = req.body.mmr;
   var id = req.body.id;
   var sc_manager = new SearchingClientsManager(PROPERTIES);
@@ -176,7 +168,7 @@ function startMatchmakingHandler(req, res){
 }
 
 module.exports.startMatchmakingHandler = startMatchmakingHandler;
+
 module.exports.MatchPairingManager = MatchPairingManager;
 module.exports.SearchingClientsManager = SearchingClientsManager;
 module.exports.DataStoreManager = DataStoreManager;
-module.exports.PROPERTIES = PROPERTIES;
