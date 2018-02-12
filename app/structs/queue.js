@@ -6,6 +6,10 @@ class Node{
   }
 }
 
+function createPlayerNode(id, mmr){
+  return new Node({'id': id, 'mmr': mmr});
+}
+
 function NotANodeError(message,extra){
   Error.captureStackTrace(this, this.constructor);
   this.message = message;
@@ -35,11 +39,11 @@ class Queue{
     }
 
     else if(!this.tail && this.head){
-       // Only 1 enqueued
+       // Only 1 enqueued 
        node.next = this.head;
        this.head.previous = node
        this.tail = node;
-
+       
     }
 
     else{
@@ -113,3 +117,4 @@ module.exports.Node = Node
 module.exports.NotANodeError = NotANodeError
 module.exports.binRanges = binRanges
 module.exports.genKeyLookup = genKeyLookup
+module.exports.createPlayerNode = createPlayerNode

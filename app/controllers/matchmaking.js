@@ -41,7 +41,7 @@ class DataStoreManager{
   }
 
   createPlayerNode(id, mmr){
-    return new queue.Node({'id': id, 'mmr': mmr});
+    return this.properties.createPlayerNode({'id': id, 'mmr': mmr});
   }
   
   getBinKey(mmr){
@@ -115,8 +115,12 @@ class DataStoreManager{
   }
 }
 
+class RouteHandler{
+  constructor(properties, sc_mgr, mp_mgr, ds_mgr, req, res){
+  }
+}
 
-function startMatchmakingHandler(properties, req, res){
+function startMatchmakingHandler(properties, ds_manager, req, res){
   /*
      Check to see if there is already a match available for you. Otherwise
      add you to the queue.
@@ -136,12 +140,9 @@ function startMatchmakingHandler(properties, req, res){
   var PROPERTIES = properties;
   var mmr = req.body.mmr;
   var id = req.body.id;
-  var sc_manager = new SearchingClientsManager(PROPERTIES);
-  var mp_manager = new MatchPairingManager(PROPERTIES);
-  var ds_manager = new DataStoreManager(PROPERTIES, sc_manager, mp_manager);
   var bin_key = ds_manager.getBinKey(mmr);
-  var paired_id = mp_manager.hasBeenDequeued(id)
-  var is_queued = sc_manager.getEnqueued(id);
+  var paired_id = ds_manager.pairing_manager.hasBeenDequeued(id)
+  var is_queued = ds_manager.searcher_manager.getEnqueued(id);
   console.log('Checking if already dequeued');
   if (paired_id){
     res.status(200);
@@ -167,7 +168,37 @@ function startMatchmakingHandler(properties, req, res){
 
 }
 
+function statusHandler(properties, ds_manager, req, res){
+  /*
+    Request a client's status. If a match was made, tell client of opponent.
+  */
+  var PROPERTIES = properties;
+  var mmr = req.body.mmr;
+  var id = req.body.id;
+  //var sc_manager = new SearchingClientsManager(PROPERTIES);
+  //var mp_manager = new MatchPairingManager(PROPERTIES);
+  //var ds_manager = new DataStoreManager(PROPERTIES, sc_manager, mp_manager);
+  var competitor_matched = ds_manager.pairing_manager.hasBeenDequeued(id)
+  var is_queued = ds_manager.searcher_manager.getEnqueued(id);
+
+  if (competitor_matched){
+    res.status(200);
+    res.json({response:'A match was found', competitor_id:competitor_matched });
+  }
+
+  else if (!is_queued){
+    res.status(404)
+    res.json({response:'You were not found in our searching players pool.' });
+  }
+
+  else{
+    res.status(202)
+    res.json({response:'A match has not been found yet. Keep polling.' });
+  }
+}
+
 module.exports.startMatchmakingHandler = startMatchmakingHandler;
+module.exports.statusHandler = statusHandler;
 
 module.exports.MatchPairingManager = MatchPairingManager;
 module.exports.SearchingClientsManager = SearchingClientsManager;
