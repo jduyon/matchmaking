@@ -20,4 +20,4 @@ server.use(function (err, req, res, next) {
 
 module.exports.server  = server;
 
-server.listen(port, hostname, () => console.log('Example app'));
+//server.listen(port, hostname, () => console.log('Example app'));
