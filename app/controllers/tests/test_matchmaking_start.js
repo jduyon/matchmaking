@@ -25,6 +25,7 @@ describe('Helper function unit tests (getters and setters)', function () {
     this.properties.ENQUEUED_PLAYERS = new Set();
     this.properties.DEQUEUED_PLAYERS = {};
     this.properties.MMR_LOOKUP = ['0-750'];
+    this.properties.createPlayerNode = queue.createPlayerNode;
   });
 
   afterEach(function () {
@@ -148,6 +149,7 @@ describe('DataStoreManager unit tests', function () {
     this.properties.ENQUEUED_PLAYERS = new Set();
     this.properties.DEQUEUED_PLAYERS = {};
     this.properties.MMR_LOOKUP = ['0-750'];
+    this.properties.createPlayerNode = queue.createPlayerNode;
   });
 
   afterEach(function () {
@@ -416,6 +418,10 @@ describe('Matchmaking API full example', function () {
     this.properties.ENQUEUED_PLAYERS = new Set();
     this.properties.DEQUEUED_PLAYERS = {};
     this.properties.MMR_LOOKUP = ['0-750'];
+    this.properties.createPlayerNode = queue.createPlayerNode;
+    sc_manager = new mm.SearchingClientsManager(this.properties);
+    pm_manager = new mm.MatchPairingManager(this.properties);
+    this.ds_manager = new mm.DataStoreManager(this.properties, sc_manager, pm_manager);
     /* Setup fake request and response objects for 2 clients */
     this.request_one = {
       'body':{'id':1,'mmr':0}
@@ -427,10 +433,12 @@ describe('Matchmaking API full example', function () {
     this.response_one.send = function(){};
     this.response_one.status = function(){};
     this.response_one.json = function(){};
+    this.response_one.end = function(){};
     this.response_two = {};
     this.response_two.send = function(){};
     this.response_two.status = function(){};
     this.response_two.json = function(){};
+    this.response_two.end = function(){};
   });
   afterEach(function () {
     sandbox.restore();
@@ -439,9 +447,9 @@ describe('Matchmaking API full example', function () {
   it('test that a full example has no errors.', function(done){
     // First client starts matchmaking
     console.log(this.properties.BINNED_QUEUES);
-    mm.startMatchmakingHandler(this.properties, this.request_one, this.response_one);
+    mm.startMatchmakingHandler(this.properties, this.ds_manager, this.request_one, this.response_one);
     // Second client starts matchmaking
-    mm.startMatchmakingHandler(this.properties, this.request_two, this.response_two);
+    mm.startMatchmakingHandler(this.properties, this.ds_manager, this.request_two, this.response_two);
     // Both clients poll their status
     //mm.statusHandler(this.properties, this.request_one, this.response_one);
     //mm.statusHandler(this.properties, this.request_two, this.response_two);
@@ -464,6 +472,10 @@ describe('startMatchmakingHandler', function () {;
     this.properties.ENQUEUED_PLAYERS = new Set();
     this.properties.DEQUEUED_PLAYERS = {};
     this.properties.MMR_LOOKUP = ['0-750'];
+    this.properties.createPlayerNode = queue.createPlayerNode;
+    sc_manager = new mm.SearchingClientsManager(this.properties);
+    pm_manager = new mm.MatchPairingManager(this.properties);
+    this.ds_manager = new mm.DataStoreManager(this.properties, sc_manager, pm_manager);
     /* Setup fake request and response objects for 2 clients */
     this.request_one = {
       'body':{'id':1,'mmr':0}
@@ -475,10 +487,12 @@ describe('startMatchmakingHandler', function () {;
     this.response_one.send = function(){};
     this.response_one.status = function(){};
     this.response_one.json = function(){};
+    this.response_one.end = function(){};
     this.response_two = {};
     this.response_two.send = function(){};
     this.response_two.status = function(){};
     this.response_two.json = function(){};
+    this.response_two.end = function(){};
   });
 
   afterEach(function () {
@@ -488,7 +502,7 @@ describe('startMatchmakingHandler', function () {;
   it('test that binned queue is not empty after first start MM request', function(done){
     // Each binned queue starts as empty, it should queue the first
     // client that makes a startMatchmakingHandler request..
-    mm.startMatchmakingHandler(this.properties, this.request_one, this.response_one);
+    mm.startMatchmakingHandler(this.properties, this.ds_manager, this.request_one, this.response_one);
     assert(this.properties.BINNED_QUEUES['0-750'].head != null);
     done();
   });
@@ -496,8 +510,8 @@ describe('startMatchmakingHandler', function () {;
   it('test that binned queue is empty after only two start MM requests', function(done){
     // Since two start mm requests are made, the binned queue will dequeue
     // the first request and pair it with the second.
-    mm.startMatchmakingHandler(this.properties, this.request_one, this.response_one);
-    mm.startMatchmakingHandler(this.properties, this.request_two, this.response_two);
+    mm.startMatchmakingHandler(this.properties, this.ds_manager, this.request_one, this.response_one);
+    mm.startMatchmakingHandler(this.properties, this.ds_manager, this.request_two, this.response_two);
     assert(this.properties.BINNED_QUEUES['0-750'].head == null);
     done();
   });

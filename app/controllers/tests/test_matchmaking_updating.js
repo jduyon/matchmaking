@@ -42,10 +42,12 @@ describe('updateStatusHandler response and status code tests', function () {
     this.response_one.send = function(){};
     this.response_one.status = function(){};
     this.response_one.json = function(){};
+    this.response_one.end = function(){};
     this.response_two = {};
     this.response_two.send = function(){};
     this.response_two.status = function(){};
     this.response_two.json = function(){};
+    this.response_two.end = function(){};
   });
   afterEach(function () {
     sandbox.restore();
@@ -106,10 +108,12 @@ describe('statusHandler method call tests', function () {
     this.response_one.send = function(){};
     this.response_one.status = function(){};
     this.response_one.json = function(){};
+    this.response_one.end = function(){};
     this.response_two = {};
     this.response_two.send = function(){};
     this.response_two.status = function(){};
     this.response_two.json = function(){};
+    this.response_two.end = function(){};
   });
   afterEach(function () {
     sandbox.restore();

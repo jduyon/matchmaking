@@ -30,7 +30,6 @@ class MatchPairingManager{
   removeFromDequeued(id){
     delete this.properties.DEQUEUED_PLAYERS[id];
   }
-
 }
 
 class DataStoreManager{
@@ -41,7 +40,7 @@ class DataStoreManager{
   }
 
   createPlayerNode(id, mmr){
-    return this.properties.createPlayerNode({'id': id, 'mmr': mmr});
+    return this.properties.createPlayerNode(id,  mmr);
   }
   
   getBinKey(mmr){
@@ -86,16 +85,13 @@ class DataStoreManager{
   
     var dequeued = this.dequeueFromBin(bin_key);
     if (dequeued){
-      console.log('You dequeued id: ', dequeued.data['id'])
       // Add dequeud client to dequeued lookup as a key
       this.pairing_manager.setDequeued(id, dequeued.data['id']);
       // Add yourself to dequeud lookup as a key
       // Note: The client never calls this when they are already queued.
       this.pairing_manager.setDequeued(dequeued.data['id'], id);
-  
-      console.log('I found a matching player for you');
-      console.log('Im adding you to dequeued so that you cant be added to queue')
     }
+
     return dequeued
   }
 
@@ -105,11 +101,9 @@ class DataStoreManager{
       this.searcher_manager.setEnqueued(id);
       var player = this.createPlayerNode(id,mmr);
       this.enqueueToBin(bin_key, player);
-      console.log('You have been enqueued');
       return true;
     }
     else{
-      console.log('You are already queued!');
       return false;
     }
   }
@@ -137,20 +131,20 @@ function startMatchmakingHandler(properties, ds_manager, req, res){
      If no to all of these ^ then I'll enqueue you.
 
   */
-  var PROPERTIES = properties;
   var mmr = req.body.mmr;
   var id = req.body.id;
   var bin_key = ds_manager.getBinKey(mmr);
   var paired_id = ds_manager.pairing_manager.hasBeenDequeued(id)
   var is_queued = ds_manager.searcher_manager.getEnqueued(id);
-  console.log('Checking if already dequeued');
   if (paired_id){
     res.status(200);
     res.json({response:'You were already queued, also, someone has matched with you'})
+    res.end();
   }
   if (is_queued){
     res.status(403);
     res.json({response: 'You are already queued. Please wait for a match to be found.'})
+    res.end();
   }
 
   else{
@@ -158,11 +152,13 @@ function startMatchmakingHandler(properties, ds_manager, req, res){
     if (competitor){
       res.status(200);
       res.json({response: 'I have a match for you already, no need to be in the queue.'})
+      res.end();
     }
     else{
       ds_manager.enqueueId(bin_key, id, mmr)
       res.status(200);
       res.json({response: 'You have been queued.'});
+      res.end();
     }
   }
 
@@ -172,28 +168,27 @@ function statusHandler(properties, ds_manager, req, res){
   /*
     Request a client's status. If a match was made, tell client of opponent.
   */
-  var PROPERTIES = properties;
   var mmr = req.body.mmr;
   var id = req.body.id;
-  //var sc_manager = new SearchingClientsManager(PROPERTIES);
-  //var mp_manager = new MatchPairingManager(PROPERTIES);
-  //var ds_manager = new DataStoreManager(PROPERTIES, sc_manager, mp_manager);
   var competitor_matched = ds_manager.pairing_manager.hasBeenDequeued(id)
   var is_queued = ds_manager.searcher_manager.getEnqueued(id);
 
   if (competitor_matched){
     res.status(200);
     res.json({response:'A match was found', competitor_id:competitor_matched });
+    res.end();
   }
 
   else if (!is_queued){
-    res.status(404)
+    res.status(404);
     res.json({response:'You were not found in our searching players pool.' });
+    res.end();
   }
 
   else{
-    res.status(202)
+    res.status(202);
     res.json({response:'A match has not been found yet. Keep polling.' });
+    res.end();
   }
 }
 
@@ -205,17 +200,18 @@ function updateStatusHandler(properties, ds_manager, req, res){
   // If a player runs this and hasn't been matched yet
   // they can re-queue without being removed from queue already.
   // NO ^ because if they were enqueued or dequeued you w
-  var PROPERTIES = properties;
   var id = req.body.id;
   if (ds_manager.pairing_manager.hasBeenDequeued(id)){
     ds_manager.removeQueuedInfo(id);
     res.status(200);
     res.json({response:'You may now restart matchmaking service.'})
+    res.end();
   }
   else{
     res.status(404);
     res.json({response:'You are not matched yet or not queued. \
       Check your status to make sure you are queued first, and then wait to be matched.'})
+    res.end();
   }
 
 

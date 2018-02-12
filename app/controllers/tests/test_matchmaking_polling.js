@@ -22,6 +22,7 @@ describe('statusHandler response and status code tests', function () {
     this.properties.ENQUEUED_PLAYERS = new Set();
     this.properties.DEQUEUED_PLAYERS = {};
     this.properties.MMR_LOOKUP = ['0-750'];
+    this.properties.createPlayerNode = queue.createPlayerNode;
     /* Setup fake request and response objects for 2 clients */
     sc_manager = new mm.SearchingClientsManager(this.properties);
     pm_manager = new mm.MatchPairingManager(this.properties);
@@ -36,10 +37,12 @@ describe('statusHandler response and status code tests', function () {
     this.response_one.send = function(){};
     this.response_one.status = function(){};
     this.response_one.json = function(){};
+    this.response_one.end = function(){};
     this.response_two = {};
     this.response_two.send = function(){};
     this.response_two.status = function(){};
     this.response_two.json = function(){};
+    this.response_two.end = function(){};
   });
   afterEach(function () {
     sandbox.restore();
@@ -106,6 +109,7 @@ describe('statusHandler method call tests', function () {
     this.properties.ENQUEUED_PLAYERS = new Set();
     this.properties.DEQUEUED_PLAYERS = {};
     this.properties.MMR_LOOKUP = ['0-750'];
+    this.properties.createPlayerNode = queue.createPlayerNode;
     sc_manager = new mm.SearchingClientsManager(this.properties);
     pm_manager = new mm.MatchPairingManager(this.properties);
     this.ds_manager = new mm.DataStoreManager(this.properties, sc_manager, pm_manager);
@@ -120,10 +124,14 @@ describe('statusHandler method call tests', function () {
     this.response_one.send = function(){};
     this.response_one.status = function(){};
     this.response_one.json = function(){};
+    this.response_one.end = function(){};
+    this.response_one.end = function(){};
     this.response_two = {};
     this.response_two.send = function(){};
     this.response_two.status = function(){};
     this.response_two.json = function(){};
+    this.response_two.end = function(){};
+    this.response_two.end = function(){};
   });
   afterEach(function () {
     sandbox.restore();

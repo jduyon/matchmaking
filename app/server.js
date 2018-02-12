@@ -10,14 +10,14 @@ var properties = require('./properties');
 server = express();
 server.use(bodyParser.json());
 server.use('/', url_router(properties));
-
 server.use(function (err, req, res, next) {
-  // logic
   if (err){
-  console.log(err);
+    console.log(err);
+    res.status = 500;
+    res.json({response:"There was an internal server error"});
   }
 });
 
 module.exports.server  = server;
 
-//server.listen(port, hostname, () => console.log('Example app'));
+//server.listen(port, hostname, () => console.log('Started server, only errors will be seen here'));
