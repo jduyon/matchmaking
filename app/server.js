@@ -20,4 +20,4 @@ server.use(function (err, req, res, next) {
 
 module.exports.server  = server;
 
-//server.listen(port, hostname, () => console.log('Started server, only errors will be seen here'));
+server.listen(port, hostname, () => console.log('Started server, only errors will be seen here'));

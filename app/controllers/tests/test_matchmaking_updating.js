@@ -5,7 +5,6 @@ var assert = require('assert');
     config = require('../../../config');
     hostname = config.host;
     port = config.port;
-    server = require('../../server');
     sinon = require('sinon');
 
 describe('updateStatusHandler response and status code tests', function () {
