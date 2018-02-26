@@ -13,6 +13,9 @@
     "express": "^4.16.2",
     "mocha": "^5.0.0",
     "package.json": "^2.0.1",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "request-promise-native": "^1.0.5",
     "sinon": "^4.3.0"
   }
 }

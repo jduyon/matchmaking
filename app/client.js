@@ -10,31 +10,65 @@ class Client{
     this.mmr = mmr;
     this.json = JSON.stringify({'id':this.id, 'mmr': this.mmr});
   }
+  completeMatch(){
+    var this_class = this;
+    new Promise(function(resolve, reject) {
+      //console.log('Starting mm');
+      this_class.startMatchmakingSearch(resolve, reject);
+    })
+    .then(function(result){
+      //console.log('Now in queue');
+      //console.log('Starting polling');
+      return new Promise(function(resolve, reject) {
+        this_class.pollStatus(resolve, reject);
+      })
+    })
+    .then(function(result){
+      //console.log('Finished polling');
+      //console.log('Starting update');
+      return new Promise(function(resolve, reject) {
+        this_class.updateStatus(resolve, reject);
+      })
+    })
+    .then(function(result){
+      console.log('Finished updating');
+    })
+    .catch(err =>function(err){throw('Failed somewhere' +err + this_class.id)})
 
-  requestRetry(options,max_retries, delay, condition, callback){
+  }
+  requestRetry(options,max_retries, delay, condition, resolve, reject){
     /* Make a request until a condition is met */
     var counter = 0;
-    function run(){
-      request(options, function(err, res, body){
+    function run(resolve, reject){
+      var req = request(options, function(err, res, body){
         if (err || !condition(res.statusCode)){
           ++counter;
           if (counter >= max_retries){
-            console.log(counter);
-            callback(err);
+            //console.log(err);
+            //console.log(res)
+            //console.log("rejected");
+            reject("Failed condition or max retries");
           }
           else{
-            setTimeout(run, delay);
+            //console.log('retrying'+delay)
+            return new Promise(function(resolve, reject){setTimeout(run, delay, resolve, reject )//run(resolve, reject), delay)
+            }).catch(err => function(err){throw('Failed retry req' +err)})
+              //new Promise(function(resolve, reject){
+              //setTimeout(run(resolve, reject), delay)
+            //}).catch(err => function(err){throw('Failed retry req' +err)})
           }
         }
         else{
-          callback(null, res, body);
+          //console.log('success');
+          //console.log(res.statusCode)
+          return resolve();
         }
         });
     }
-    run();
+    return run(resolve, reject);
   }
 
-  async startMatchmakingSearch(){
+  startMatchmakingSearch(resolve, reject){
     const options = {  
       url: 'http://' + hostname + ':' + port + '/start',
       method: 'POST',
@@ -52,21 +86,15 @@ class Client{
     };
 
     var retries = 10;
-    var delay = 1000; // 1 second
+    var delay = 5000; // 1 second
     // Requesting to start mm should happen immediately. If it doesn't happen
     // after 10 seconds there's probably something wrong
-    var result = await this.requestRetry(options, retries, delay, condition, function(err,res, body ){
-      if (err){
-        throw(err);
-      }
-      else{
-        return 'Request complete, I am in the queue.' + res.statusCode + body;
-      }});
+    var result = this.requestRetry(options, retries, delay, condition, resolve, reject);
 
     return result
   }
 
-  async pollStatus(){
+  pollStatus(resolve, reject){
     const options = {
       url: 'http://' + hostname + ':' + port + '/status',
       method: 'POST',
@@ -81,8 +109,15 @@ class Client{
       if (statusCode == 200){
         return true;
       }
+      else if (statusCode == 202){
+        //console.log('Poll: Keep polling, no match yet');
+      }
       else if (statusCode == 404){
-        throw('I have not been queued');
+        console.log('Poll: Client not found');
+        return false;
+      }
+      else{
+        console.log('some other status', statusCode);
       }
     };
 
@@ -90,18 +125,12 @@ class Client{
     var delay = 5000; // 5 seconds
     // Polling is allowed to continue for 10 minutes
     // The client shouldn't wait longer than 10 minutes for a match.
-    var result = await this.requestRetry(options, retries, delay, condition, function(err,res, body ){
-      if (err){
-        throw(err);
-      }
-      else{
-        return 'Request complete, a match was found.' + res.statusCode + body;
-      }
-    });
-    return result;
+    var result = this.requestRetry(options, retries, delay, condition, resolve, reject);
+
+    return result
   }
 
-  async updateStatus(){
+  updateStatus(resolve, reject){
     const options = {
       url: 'http://' + hostname + ':' + port + '/update',
       method: 'POST',
@@ -116,55 +145,30 @@ class Client{
         return true;
       }
       else if(statusCode == 404){
-        throw('I am not in the queue');
+        //console.log('Update: No match found..');
+        return false;
+        //throw('I am not in the queue');
       }
     };
 
-    var retries = 10;
-    var delay = 1000; // 1 second
+    var retries = 100;
+    var delay = 5000; // 1 second
     // Requesting to update your status should happen immediately. If it doesn't happen
     // after 10 seconds there's probably something wrong
-    var result = await this.requestRetry(options, retries, delay, condition, function(err,res, body ){
-      if (err){
-        throw(err);
-      }
-      else{
-        return 'Request complete, I am ready for a match.' + res.statusCode + body;
-      }});
+    var result = this.requestRetry(options, retries, delay, condition, resolve, reject);
 
     return result
   }
 
-  completeMatch(){
-    /*
-    Start matchmaking, poll until matched, then update status.
-    */
-    // If you use this inside a promise it refers to itself.
-    var this_class = this;
-    var start_promise = this.startMatchmakingSearch()
-    start_promise.catch(function(error) {
-      console.log(error);
-    });
-    start_promise.then(function(result){
-      var poll_promise = this_class.pollStatus();
-      poll_promise.catch(function(error) {
-        console.log(error);
-      });
-
-      poll_promise.then(function(result){
-        var update_promise = this_class.updateStatus();
-        update_promise.catch(function(error) {
-          console.log(error);
-        });
-      });
-    });
-  }    
 }
 
-
-var x = new Client('0','0');
-var y = new Client('1','0');
-x.completeMatch();
-y.completeMatch();
+for (var i=0; i<2000; i++){
+  var x = new Client(i,'0');
+  var y = new Client(i+5005+1,'0');
+  //x.completeMatch();
+  //y.completeMatch();
+  setTimeout(function(){x.completeMatch()}, 50);
+  setTimeout(function(){y.completeMatch()}, 50);
+}
 
 

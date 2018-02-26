@@ -136,6 +136,8 @@ function startMatchmakingHandler(properties, ds_manager, req, res){
   var bin_key = ds_manager.getBinKey(mmr);
   var paired_id = ds_manager.pairing_manager.hasBeenDequeued(id)
   var is_queued = ds_manager.searcher_manager.getEnqueued(id);
+  console.log('Enqueued', properties.ENQUEUED_PLAYERS.size);
+  console.log('QUEUES', properties.BINNED_QUEUES);
   if (paired_id){
     res.status(200);
     res.json({response:'You were already queued, also, someone has matched with you'})
@@ -172,7 +174,9 @@ function statusHandler(properties, ds_manager, req, res){
   var id = req.body.id;
   var competitor_matched = ds_manager.pairing_manager.hasBeenDequeued(id)
   var is_queued = ds_manager.searcher_manager.getEnqueued(id);
-
+  console.log('Enqueued', properties.ENQUEUED_PLAYERS.size);
+  //console.log('QUEUES', properties.BINNED_QUEUES);
+  //console.log('Dequeued', Object.keys(properties.DEQUEUED_PLAYERS).length);
   if (competitor_matched){
     res.status(200);
     res.json({response:'A match was found', competitor_id:competitor_matched });
@@ -196,10 +200,6 @@ function updateStatusHandler(properties, ds_manager, req, res){
   // Request to tell server you are ready
   // Will remove you from matched/searching players
   // Once this is called, a player can restart matchmaking
-  // What if a user was enqueued but not matched and he runs this?
-  // If a player runs this and hasn't been matched yet
-  // they can re-queue without being removed from queue already.
-  // NO ^ because if they were enqueued or dequeued you w
   var id = req.body.id;
   if (ds_manager.pairing_manager.hasBeenDequeued(id)){
     ds_manager.removeQueuedInfo(id);
@@ -213,7 +213,6 @@ function updateStatusHandler(properties, ds_manager, req, res){
       Check your status to make sure you are queued first, and then wait to be matched.'})
     res.end();
   }
-
 
 }
 
