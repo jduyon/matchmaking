@@ -139,28 +139,20 @@ function startMatchmakingHandler(properties, ds_manager, req, res){
   console.log('Enqueued', properties.ENQUEUED_PLAYERS.size);
   console.log('QUEUES', properties.BINNED_QUEUES);
   if (paired_id){
-    res.status(200);
-    res.json({response:'You were already queued, also, someone has matched with you'})
-    res.end();
+    return res.status(200).json({response:'You were already queued, also, someone has matched with you'})
   }
   if (is_queued){
-    res.status(403);
-    res.json({response: 'You are already queued. Please wait for a match to be found.'})
-    res.end();
+    return res.status(403).json({response: 'You are already queued. Please wait for a match to be found.'})
   }
 
   else{
     var competitor = ds_manager.getBinnedCompetitor(bin_key, id);
     if (competitor){
-      res.status(200);
-      res.json({response: 'I have a match for you already, no need to be in the queue.'})
-      res.end();
+      return res.status(200).json({response: 'I have a match for you already, no need to be in the queue.'})
     }
     else{
       ds_manager.enqueueId(bin_key, id, mmr)
-      res.status(200);
-      res.json({response: 'You have been queued.'});
-      res.end();
+      return res.status(200).json({response: 'You have been queued.'});
     }
   }
 
@@ -175,24 +167,18 @@ function statusHandler(properties, ds_manager, req, res){
   var competitor_matched = ds_manager.pairing_manager.hasBeenDequeued(id)
   var is_queued = ds_manager.searcher_manager.getEnqueued(id);
   console.log('Enqueued', properties.ENQUEUED_PLAYERS.size);
-  //console.log('QUEUES', properties.BINNED_QUEUES);
-  //console.log('Dequeued', Object.keys(properties.DEQUEUED_PLAYERS).length);
+  console.log('QUEUES', properties.BINNED_QUEUES);
+  console.log('Dequeued', Object.keys(properties.DEQUEUED_PLAYERS).length);
   if (competitor_matched){
-    res.status(200);
-    res.json({response:'A match was found', competitor_id:competitor_matched });
-    res.end();
+    return res.status(200).json({response:'A match was found', competitor_id:competitor_matched });
   }
 
   else if (!is_queued){
-    res.status(404);
-    res.json({response:'You were not found in our searching players pool.' });
-    res.end();
+    return res.status(404).json({response:'You were not found in our searching players pool.' });
   }
 
   else{
-    res.status(202);
-    res.json({response:'A match has not been found yet. Keep polling.' });
-    res.end();
+    return res.status(202).json({response:'A match has not been found yet. Keep polling.' });
   }
 }
 
@@ -203,15 +189,11 @@ function updateStatusHandler(properties, ds_manager, req, res){
   var id = req.body.id;
   if (ds_manager.pairing_manager.hasBeenDequeued(id)){
     ds_manager.removeQueuedInfo(id);
-    res.status(200);
-    res.json({response:'You may now restart matchmaking service.'})
-    res.end();
+    return res.status(200).json({response:'You may now restart matchmaking service.'})
   }
   else{
-    res.status(404);
-    res.json({response:'You are not matched yet or not queued. \
+    return res.status(404).json({response:'You are not matched yet or not queued. \
       Check your status to make sure you are queued first, and then wait to be matched.'})
-    res.end();
   }
 
 }

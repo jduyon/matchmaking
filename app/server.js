@@ -13,8 +13,8 @@ server.use('/', url_router(properties));
 server.use(function (err, req, res, next) {
   if (err){
     console.log(err);
-    res.status = 500;
-    res.json({response:"There was an internal server error"});
+    res.status(500).json({response:"There was an internal server error"});
+//    res.end();
   }
 });
 

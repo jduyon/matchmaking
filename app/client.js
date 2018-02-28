@@ -13,19 +13,19 @@ class Client{
   completeMatch(){
     var this_class = this;
     new Promise(function(resolve, reject) {
-      //console.log('Starting mm');
+      console.log('Starting mm');
       this_class.startMatchmakingSearch(resolve, reject);
     })
     .then(function(result){
-      //console.log('Now in queue');
-      //console.log('Starting polling');
+      console.log('Now in queue');
+      console.log('Starting polling');
       return new Promise(function(resolve, reject) {
         this_class.pollStatus(resolve, reject);
       })
     })
     .then(function(result){
-      //console.log('Finished polling');
-      //console.log('Starting update');
+      console.log('Finished polling');
+      console.log('Starting update');
       return new Promise(function(resolve, reject) {
         this_class.updateStatus(resolve, reject);
       })
@@ -39,9 +39,9 @@ class Client{
   requestRetry(options,max_retries, delay, condition, resolve, reject){
     /* Make a request until a condition is met */
     var counter = 0;
-    function run(resolve, reject){
+    function run(resolve, reject, id){
       var req = request(options, function(err, res, body){
-        if (err || !condition(res.statusCode)){
+        if (err || !condition(res.statusCode, id)){
           ++counter;
           if (counter >= max_retries){
             //console.log(err);
@@ -51,7 +51,7 @@ class Client{
           }
           else{
             //console.log('retrying'+delay)
-            return new Promise(function(resolve, reject){setTimeout(run, delay, resolve, reject )//run(resolve, reject), delay)
+            return new Promise(function(resolve, reject){setTimeout(run, delay, resolve, reject, id)//run(resolve, reject), delay)
             }).catch(err => function(err){throw('Failed retry req' +err)})
               //new Promise(function(resolve, reject){
               //setTimeout(run(resolve, reject), delay)
@@ -65,7 +65,7 @@ class Client{
         }
         });
     }
-    return run(resolve, reject);
+    return run(resolve, reject, this.id);
   }
 
   startMatchmakingSearch(resolve, reject){
@@ -104,8 +104,7 @@ class Client{
       },
       body: this.json,
     };
-
-    function condition(statusCode){
+    function condition(statusCode, id){
       if (statusCode == 200){
         return true;
       }
@@ -113,7 +112,7 @@ class Client{
         //console.log('Poll: Keep polling, no match yet');
       }
       else if (statusCode == 404){
-        console.log('Poll: Client not found');
+        console.log('Poll: Client not found', id);
         return false;
       }
       else{
@@ -142,6 +141,7 @@ class Client{
     };
     function condition(statusCode){
       if (statusCode == 200){
+        console.log('Finished Updating!!!!!')
         return true;
       }
       else if(statusCode == 404){
@@ -162,13 +162,9 @@ class Client{
 
 }
 
-for (var i=0; i<2000; i++){
+for (var i=0; i<1000; i++){
   var x = new Client(i,'0');
-  var y = new Client(i+5005+1,'0');
-  //x.completeMatch();
-  //y.completeMatch();
-  setTimeout(function(){x.completeMatch()}, 50);
-  setTimeout(function(){y.completeMatch()}, 50);
+  setTimeout(function(){x.completeMatch()}, 0);
 }
 
 
