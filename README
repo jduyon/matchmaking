@@ -88,10 +88,3 @@ Take an example opponent of 975 with standard deviation of 30.
 The 950 player will lose an estimated 80% of the time. The 1000 player will win 80% of the time.
 In the most extreme example, the 1000 player will win 100% if playing against the 950 player.
 
-[OTHER IDEAS / CHURN RATE]
-
-In my experience with matchmaking in games, I don't always want to play a game where I am only winning 50% of the time. Sometimes I'll want to exert myself and play a much better opponent to test my strength as a player. With a matchmaking algorithm that ONLY tries for fair 50% matches, you are leaving a want unfulfilled. There's also the fact that sometimes people just want to relax and destroy some noobs. When I say "sometimes" I don't want to imply that it is random, there is definitely a pattern to it, (although there certainly is some noise/randomness).
-
-With a goal of maximizing the amount of tournaments people play, you can optimize the matchmaking algorithm using machine learning techniques. For example, using the data from a player's tournament history, you can train a model to predict a player's probability of not playing another tournament. You could use features like: What was the MMR of the players they played leading up to this point? Did they stop after losing/winning a certain number of games? Different classes of players will certainly have different patterns of tournament playing. You would then use this probability as a weight that would artificially alter a player's MMR on the next round.
-
-There are other companies which have already implemented matchmaking optimizations to align matchmaking with their goals. For example, EA published a paper on Engagement Optimized Matchmaking Framework (EOMM): https://arxiv.org/pdf/1702.06820.pdf
