@@ -44,23 +44,14 @@ class Client{
         if (err || !condition(res.statusCode, id)){
           ++counter;
           if (counter >= max_retries){
-            //console.log(err);
-            //console.log(res)
-            //console.log("rejected");
             reject("Failed condition or max retries");
           }
           else{
-            //console.log('retrying'+delay)
             return new Promise(function(resolve, reject){setTimeout(run, delay, resolve, reject, id)//run(resolve, reject), delay)
             }).catch(err => function(err){throw('Failed retry req' +err)})
-              //new Promise(function(resolve, reject){
-              //setTimeout(run(resolve, reject), delay)
-            //}).catch(err => function(err){throw('Failed retry req' +err)})
           }
         }
         else{
-          //console.log('success');
-          //console.log(res.statusCode)
           return resolve();
         }
         });
@@ -86,7 +77,7 @@ class Client{
     };
 
     var retries = 10;
-    var delay = 5000; // 1 second
+    var delay = 5000; 
     // Requesting to start mm should happen immediately. If it doesn't happen
     // after 10 seconds there's probably something wrong
     var result = this.requestRetry(options, retries, delay, condition, resolve, reject);
@@ -145,14 +136,12 @@ class Client{
         return true;
       }
       else if(statusCode == 404){
-        //console.log('Update: No match found..');
         return false;
-        //throw('I am not in the queue');
       }
     };
 
     var retries = 100;
-    var delay = 5000; // 1 second
+    var delay = 5000;
     // Requesting to update your status should happen immediately. If it doesn't happen
     // after 10 seconds there's probably something wrong
     var result = this.requestRetry(options, retries, delay, condition, resolve, reject);
