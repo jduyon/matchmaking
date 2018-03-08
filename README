@@ -15,7 +15,9 @@ If you run:
 
 node app/client.js
 
-while the server is running, 2 async clients will attempt to perform all the requests of a complete matchmaking example. However, I ran out of time and wasn't able to get it under test / working properly. Otherwise, a full example is: 
+While this is running, many clients will attempt to perform all the requests necessary of a complete matchmaking example.
+
+Otherwise, a full example is: 
 
 1. Start the server in another tab
 
