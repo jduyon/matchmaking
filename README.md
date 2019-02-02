@@ -1,16 +1,16 @@
-[PROJECT]
+# PROJECT
 Create a matchmaking service given hypothetical player information.
 
-[ INSTALLING ]
+# INSTALLING
 npm install package.json
 
-[ RUNNING TESTS ]
+# RUNNING TESTS
 npm test
 
-[STARTING THE SERVER]
+# STARTING THE SERVER
 node app/server.js
 
-[A complete client matchmaking example]
+## A complete client matchmaking example
 If you run:
 
 node app/client.js
@@ -38,7 +38,7 @@ Otherwise, a full example is:
 
   Note: After you run ^ you will be able to restart matchmaking.
 
-[MY NOTES ABOUT MATCHMAKING]
+### MY NOTES ABOUT MATCHMAKING
 
 -Matchmaking is about bringing two equally (or psuedo-equally) skilled players together.
 -The skill of a player is set by MMR (Matchmaking rating), which is a positive numerical ranking. This ranking is calculated with an algorithm by the game developer or publisher.
@@ -46,7 +46,7 @@ Otherwise, a full example is:
 -A lot of the MMR algorithms assume player skill is normally distributed.
   With this assumption ^ I can calculate the expected win probabilities of two players.
 
-[WIN PROBABILITY CALCULATION]
+### WIN PROBABILITY CALCULATION
 
 The probability that a player (p1) will beat an opponent (p2) is:
 
@@ -61,7 +61,7 @@ Source: https://www.microsoft.com/en-us/research/wp-content/uploads/2007/01/NIPS
 
 Note: In extreme cases, high variance in skill or low variance in skill leads to bad results.
 
-[IMPLEMENTATION]
+# IMPLEMENTATION
 Creating bins for skill ranges is how I implemented the matchmaking service
 
 The pseudo-code for a binned matchmaker would be:
